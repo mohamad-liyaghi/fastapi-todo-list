@@ -16,7 +16,7 @@ class BaseRepository:
         self.model_class = model
         self.session = session
 
-    async def create(self, attributes: dict) -> ModelType:
+    async def create(self, **attributes) -> ModelType:
         '''
         Create a new model instance.
         :param attributes: the data for creating object
@@ -27,7 +27,7 @@ class BaseRepository:
         self.session.add(model)
         return model
 
-    async def update(self, model: ModelType, update_data: dict) -> ModelType:
+    async def update(self, model: ModelType, **update_data) -> ModelType:
         """
         Updates the given model instance with the given data.
 
