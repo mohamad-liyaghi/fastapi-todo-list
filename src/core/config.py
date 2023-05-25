@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class EnvironmentType(str, Enum):
     DEVELOPMENT = "development"
     PRODUCTION = "production"
@@ -15,10 +16,13 @@ class BaseConfig(BaseSettings):
     class Config:
         case_sensitive = False
 
+
 class Config(BaseConfig):
     DEBUG: int = os.environ.get('DEBUG', 0)
     DEFAULT_LOCALE: str = "en_US"
-    ENVIRONMENT: str = os.environ.get('ENVIRONMENT', EnvironmentType.DEVELOPMENT)
+    ENVIRONMENT: EnvironmentType = os.environ.get(
+        'ENVIRONMENT', EnvironmentType.DEVELOPMENT
+    )
     SECRET_KEY: str = os.environ.get('SECRET_KEY', 'secret-key')
     DATABASE_URL: str = os.environ.get('DATABASE_URL', None)
 
