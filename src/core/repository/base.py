@@ -1,7 +1,6 @@
 from typing import Type, TypeVar, List, Optional
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql.expression import select
 from functools import reduce
 
 from core.database import Base
@@ -25,6 +24,7 @@ class BaseRepository:
 
         model = self.model_class(**attributes)
         self.session.add(model)
+        await self.session.commit()
         return model
 
     async def update(self, model: ModelType, **update_data) -> ModelType:
@@ -64,7 +64,7 @@ class BaseRepository:
         models = result.scalars().all()
         return models
 
-    async def get_one(self, limit: int = None, **kwargs) -> Optional[ModelType]:
+    async def get_one(self, **kwargs) -> Optional[ModelType]:
         """
         Retrieves the first model instance that matches the specified criteria.
 
@@ -72,7 +72,7 @@ class BaseRepository:
         :param kwargs: Filter criteria.
         :return: The model instance that matches the specified criteria, or None if not found.
         """
-        query = await self._get_base_query(limit=limit, **kwargs)
+        query = await self._get_base_query(limit=1, **kwargs)
         result = await self.session.execute(query)
         model = result.scalars().first()
         return model
@@ -85,10 +85,11 @@ class BaseRepository:
         :param kwargs: Filter criteria.
         :return: A base query object.
         """
-        query = select(self.model_class)
-        filters = [getattr(self.model_class, field) == value for field, value in kwargs.items()]
+        table = self.model_class.__table__
+        query = select(table)
+        filters = [table.columns[field] == value for field, value in kwargs.items()]
         if filters:
-            query = query.where(reduce(and_, filters))
+            query = query.where(and_(*filters))
         if limit is not None:
             query = query.limit(limit)
         return query
