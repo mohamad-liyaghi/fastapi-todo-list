@@ -1,4 +1,4 @@
-from fastapi import Depends
+from fastapi import Depends, status
 from fastapi.routing import APIRouter
 from core.factory import Factory
 from app.controllers import AuthController
@@ -10,7 +10,7 @@ from app.schemas import (
 router = APIRouter()
 
 
-@router.post("/register", response_model=UserRegisterResponse)
+@router.post("/register", response_model=UserRegisterResponse, status_code=status.HTTP_201_CREATED)
 async def register_user(
     request: UserRegisterRequest,
     auth_controller: AuthController = Depends(Factory().get_auth_controller),

@@ -23,10 +23,7 @@ class BaseController(Generic[ModelType]):
         """
         obj = await self.repository.get_one(id=id_)
         if not obj:
-            raise HTTPException(
-                detail=f"{self.model_class.__tablename__.title()} with id: {id_} does not exist",
-                status_code=status.HTTP_404_NOT_FOUND
-            )
+            return
         return obj
 
     async def get_by_uuid(self, uuid: UUID) -> ModelType:
@@ -38,10 +35,7 @@ class BaseController(Generic[ModelType]):
         """
         obj = await self.repository.get_one(uuid=uuid)
         if not obj:
-            raise HTTPException(
-                detail=f"{self.model_class.__tablename__.title()} with uuid: {uuid} does not exist",
-                status_code=status.HTTP_404_NOT_FOUND
-            )
+            return
         return obj    
     
     async def get_all(self, limit: int = 20) -> List[ModelType]:
@@ -70,8 +64,5 @@ class BaseController(Generic[ModelType]):
         """
         obj = await self.repository.get_one(id_=id_)
         if not obj:
-            raise HTTPException(
-                detail=f"{self.model_class.__tablename__.title()} with id: {id_} does not exist",
-                status_code=status.HTTP_404_NOT_FOUND
-            )
+            return
         await self.repository.delete(obj)
