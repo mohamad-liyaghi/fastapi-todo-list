@@ -10,3 +10,8 @@ class UserRegisterResponse(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class UserAccessTokenResponse(BaseModel):
+    access_token: str
+    token_type: str

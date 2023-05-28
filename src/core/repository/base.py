@@ -74,7 +74,11 @@ class BaseRepository:
         """
         query = await self._get_base_query(limit=1, **kwargs)
         result = await self.session.execute(query)
-        model = result.scalars().first()
+        model_id = result.scalars().first()
+        if not model_id: 
+            return
+
+        model = await self.session.get(self.model_class, model_id)
         return model
 
     async def _get_base_query(self, limit: int = None, **kwargs):

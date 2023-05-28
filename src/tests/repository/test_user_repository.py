@@ -13,7 +13,7 @@ class TestUserRepository:
     async def test_get_user_by_username(self, setup_method) -> None:
         created_user = await self.user_repository.create(username=self.username, password='fake_pass')
         user = await self.user_repository.get_by_username(self.username)
-        assert user == created_user.id
+        assert user.id == created_user.id
 
     async def test_get_user_by_invalid_username(self, setup_method) -> None:
         user = await self.user_repository.get_by_username('fakeusername')

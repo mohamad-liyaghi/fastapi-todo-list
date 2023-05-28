@@ -37,3 +37,21 @@ class TestUserRouter:
         self.data['password'] = '1'
         response = await self.client.post("v1/users/register", json=self.data)
         assert response.status_code == 422
+
+    async def test_get_access_token(self) -> None:
+        '''Get access token'''
+        await self.client.post("v1/users/register", json=self.data)
+        response = await self.client.post("v1/users/login", data=self.data)
+        assert response.status_code == 200
+        assert response.json()['access_token'] is not None
+        
+    async def test_get_access_token_invalid_user(self) -> None:
+        # We havnt created user yet, so it returns none
+        response = await self.client.post("v1/users/login", data=self.data)
+        assert response.status_code == 404
+
+    async def test_get_access_token_invalid_password(self) -> None:
+        await self.client.post("v1/users/register", json=self.data)       
+        self.data['password'] = 'Invalid pass'
+        response = await self.client.post("v1/users/login", data=self.data)
+        assert response.status_code == 403
