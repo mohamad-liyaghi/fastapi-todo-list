@@ -15,8 +15,7 @@ class AuthController(BaseController):
         if user:
             raise HTTPException(
                 detail='User with this username already exists.',
-                status_code=status.HTTP_400_BAD_REQUEST
-            )        
+                status_code=status.HTTP_400_BAD_REQUEST)
         hashed_password = PasswordHandler.hash(password)
         return await self.repository.create(
             username=username,
@@ -30,7 +29,7 @@ class AuthController(BaseController):
             raise HTTPException(
                 detail='User does not found.',
                 status_code=status.HTTP_404_NOT_FOUND
-            )        
+            )
 
         if not PasswordHandler.verify(
             hashed_password=user.password, plain_password=password
@@ -39,4 +38,4 @@ class AuthController(BaseController):
                 detail='Password is not correct.',
                 status_code=status.HTTP_403_FORBIDDEN
             )
-        return await JWTHandler.create_access_token({'username' : username})
+        return await JWTHandler.create_access_token({'username': username})

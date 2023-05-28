@@ -6,14 +6,18 @@ from app.controllers import AuthController
 from typing import Annotated
 from app.schemas import (
     UserRegisterRequest,
-    UserRegisterResponse, 
+    UserRegisterResponse,
     UserAccessTokenResponse,
 )
 
 router = APIRouter()
 
 
-@router.post("/register", response_model=UserRegisterResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register",
+    response_model=UserRegisterResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def register_user(
     request: UserRegisterRequest,
     auth_controller: AuthController = Depends(Factory().get_auth_controller),
@@ -29,8 +33,7 @@ async def register_user(
 async def get_access_token(
     request: Annotated[OAuth2PasswordRequestForm, Depends()],
     auth_controller: AuthController = Depends(Factory().get_auth_controller)
-) -> UserAccessTokenResponse:    
-    
+) -> UserAccessTokenResponse:
     access_token = await auth_controller.create_access_token(
         username=request.username, password=request.password
     )
