@@ -1,9 +1,9 @@
-from typing import Any, Generic, Type, TypeVar, List
+from fastapi import HTTPException, status
+from typing import Generic, Type, TypeVar, List
 from uuid import UUID
 
 from core.database import Base
 from core.repository import BaseRepository
-from core.exceptions import NotFoundException
 
 ModelType = TypeVar('ModelType', bound=Base)
 
@@ -23,7 +23,7 @@ class BaseController(Generic[ModelType]):
         """
         obj = await self.repository.get_one(id=id_)
         if not obj:
-            raise NotFoundException(f"{self.model_class.__tablename__.title()} with id: {id_} does not exist")
+            return
         return obj
 
     async def get_by_uuid(self, uuid: UUID) -> ModelType:
@@ -35,7 +35,7 @@ class BaseController(Generic[ModelType]):
         """
         obj = await self.repository.get_one(uuid=uuid)
         if not obj:
-            raise NotFoundException(f"{self.model_class.__tablename__.title()} with uuid: {uuid} does not exist")
+            return
         return obj    
     
     async def get_all(self, limit: int = 20) -> List[ModelType]:
@@ -64,7 +64,5 @@ class BaseController(Generic[ModelType]):
         """
         obj = await self.repository.get_one(id_=id_)
         if not obj:
-            raise NotFoundException(
-                f"{self.model_class.__tablename__.title()} with id: {id_} does not exist"
-            )
+            return
         await self.repository.delete(obj)
