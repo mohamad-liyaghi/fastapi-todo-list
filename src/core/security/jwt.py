@@ -9,14 +9,14 @@ SECRET_KEY = config.SECRET_KEY
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
+
 class JWTHandler:
-    
+
     @staticmethod
     async def create_access_token(data: dict):
         to_encode = data.copy()
-        
+
         expire = datetime.utcnow() + timedelta(minutes=15)
-        to_encode.update({"exp": expire})
+        to_encode.update({"exp": expire, "user_id": data.get('id')})
         encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
         return encoded_jwt
-    
