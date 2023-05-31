@@ -1,4 +1,5 @@
-import pytest, uuid
+import pytest
+import uuid
 from httpx import AsyncClient
 
 
@@ -44,7 +45,7 @@ class TestTaskRouter:
     async def test_update_task_unauthorized(self) -> None:
         response = await self.client.put("v1/tasks/update/fasf/", data={})
         assert response.status_code == 403
-    
+
     async def test_update_task(self) -> None:
         await create_user_and_login(self.client)
         task = await self.client.post("/v1/tasks/create", json=self.data)
@@ -75,7 +76,9 @@ class TestTaskRouter:
     async def test_update_others_task(self) -> None:
         await create_user_and_login(self.client)
 
-        others_task = await self.client.post("/v1/tasks/create", json=self.data)
+        others_task = await self.client.post(
+            "/v1/tasks/create", json=self.data
+        )
         others_task_uuid = others_task.json()['uuid']
 
         await create_user_and_login(self.client, username='other_user')
@@ -83,5 +86,45 @@ class TestTaskRouter:
         response = await self.client.put(
             f'v1/tasks/update/{others_task_uuid}/',
             json={'title': 'updated', 'description': 'updated'}
+        )
+        assert response.status_code == 403
+
+    async def test_delete_task_unauthorized(self) -> None:
+
+        response = await self.client.delete(
+            f'v1/tasks/delete/{uuid.uuid4()}/',
+        )
+        assert response.status_code == 403
+
+    async def test_delete_task(self) -> None:
+        await create_user_and_login(self.client)
+        task = await self.client.post("/v1/tasks/create", json=self.data)
+        task_uuid = task.json()['uuid']
+
+        response = await self.client.delete(
+            f'v1/tasks/delete/{task_uuid}/',
+        )
+        assert response.status_code == 200
+    
+    async def test_delete_invalid_task(self) -> None:
+        await create_user_and_login(self.client)
+
+        response = await self.client.delete(
+            f'v1/tasks/delete/{uuid.uuid4()}/',
+        )
+        assert response.status_code == 404
+
+    async def test_delete_others_task(self) -> None:
+        await create_user_and_login(self.client)
+
+        others_task = await self.client.post(
+            "/v1/tasks/create", json=self.data
+        )
+        others_task_uuid = others_task.json()['uuid']
+
+        await create_user_and_login(self.client, username='other_user')
+
+        response = await self.client.delete(
+            f'v1/tasks/delete/{others_task_uuid}/',
         )
         assert response.status_code == 403

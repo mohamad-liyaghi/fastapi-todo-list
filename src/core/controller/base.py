@@ -62,7 +62,7 @@ class BaseController(Generic[ModelType]):
         :param id_: The id of the model instance to delete.
         :return: None
         """
-        obj = await self.repository.get_one(id_=id_)
+        obj = await self.repository.get_one(id=id_)
         if not obj:
             return
-        await self.repository.delete(obj)
+        return await self.repository.delete(obj)

@@ -9,4 +9,3 @@ class TaskCreateRequest(BaseModel):
 class TaskUpdateRequest(BaseModel):
     title: str
     description: str
-

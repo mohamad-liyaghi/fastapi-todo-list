@@ -34,7 +34,7 @@ async def create_task(
 
 @router.put('/update/{task_uuid}/', status_code=status.HTTP_200_OK)
 async def update_task(
-    task_uuid: str,
+    task_uuid: UUID,
     request: TaskUpdateRequest,
     task_controller: TaskController = Depends(Factory().get_task_controller),
     current_user: int = Depends(get_current_user),
@@ -42,3 +42,17 @@ async def update_task(
     return await task_controller.update_task(
         uuid=task_uuid, owner_id=current_user.id, update_data=dict(request)
     )
+
+
+@router.delete('/delete/{task_uuid}/', status_code=status.HTTP_200_OK)
+async def delete_task(
+    task_uuid: UUID,
+    task_controller: TaskController = Depends(Factory().get_task_controller),
+    current_user: int = Depends(get_current_user),
+):
+
+    await task_controller.delete_task(
+        uuid=task_uuid, owner_id=current_user.id
+    )
+    return {'success': 'deleted'}
+

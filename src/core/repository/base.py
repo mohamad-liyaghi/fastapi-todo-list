@@ -50,7 +50,8 @@ class BaseRepository:
         :param model: The model to delete.
         :return: None
         """
-        self.session.delete(model)
+        await self.session.delete(model)
+        await self.session.commit()
 
     async def get_all(self, limit: int = 20, **kwargs) -> List[ModelType]:
         """
