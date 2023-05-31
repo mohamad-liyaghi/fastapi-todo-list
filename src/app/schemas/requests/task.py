@@ -9,3 +9,4 @@ class TaskCreateRequest(BaseModel):
 class TaskUpdateRequest(BaseModel):
     title: str
     description: str
+    is_completed: bool

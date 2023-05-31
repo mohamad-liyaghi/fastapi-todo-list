@@ -8,6 +8,7 @@ from app.schemas import (
     TaskCreateResponse,
     TaskUpdateRequest,
     TaskUpdateResponse,
+    TaskRetrieveResponse,
 )
 from core.dependencies import get_current_user
 from uuid import UUID
@@ -15,6 +16,18 @@ from uuid import UUID
 router = APIRouter(
     dependencies=[Depends(AuthenticationRequired)],
 )
+
+
+@router.get('/detail/{task_uuid}/', status_code=status.HTTP_200_OK)
+async def retrieve_task(
+    task_uuid: UUID,
+    task_controller: TaskController = Depends(Factory().get_task_controller),
+    current_user: int = Depends(get_current_user),
+) -> TaskRetrieveResponse:
+
+    return await task_controller.get_user_task_by_uuid(
+        uuid=task_uuid, owner_id=current_user.id
+    )
 
 
 @router.post('/create', status_code=status.HTTP_201_CREATED)
@@ -55,4 +68,3 @@ async def delete_task(
         uuid=task_uuid, owner_id=current_user.id
     )
     return {'success': 'deleted'}
-
