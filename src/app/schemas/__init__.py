@@ -1,7 +1,7 @@
 from .requests.user import UserRegisterRequest
 from .responses.user import UserRegisterResponse, UserAccessTokenResponse
-from .requests.task import TaskCreateRequest
-from .responses.task import TaskCreateResponse
+from .requests.task import TaskCreateRequest, TaskUpdateRequest
+from .responses.task import TaskCreateResponse, TaskUpdateResponse
 
 USER_REQUEST = [
     'UserRegisterRequest',
@@ -13,9 +13,11 @@ USER_RESPONSE = [
 
 TASK_REQUEST = [
     'TaskCreateRequest',
+    'TaskUpdateRequest',
 ]
 TASK_RESPONSE = [
     'TaskCreateResponse',
+    'TaskUpdateResponse',
 ]
 
 __all__ = [
