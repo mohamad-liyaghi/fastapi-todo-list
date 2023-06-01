@@ -31,19 +31,7 @@ async def retrieve_all_tasks(
     return tasks
 
 
-@router.get('/detail/{task_uuid}/', status_code=status.HTTP_200_OK)
-async def retrieve_task(
-    task_uuid: UUID,
-    task_controller: TaskController = Depends(Factory().get_task_controller),
-    current_user: int = Depends(get_current_user),
-) -> TaskRetrieveResponse:
-
-    return await task_controller.get_user_task_by_uuid(
-        uuid=task_uuid, owner_id=current_user.id
-    )
-
-
-@router.post('/create', status_code=status.HTTP_201_CREATED)
+@router.post('/', status_code=status.HTTP_201_CREATED)
 async def create_task(
     request: TaskCreateRequest,
     task_controller: TaskController = Depends(Factory().get_task_controller),
@@ -58,7 +46,19 @@ async def create_task(
     return task
 
 
-@router.put('/update/{task_uuid}/', status_code=status.HTTP_200_OK)
+@router.get('/{task_uuid}/', status_code=status.HTTP_200_OK)
+async def retrieve_task(
+    task_uuid: UUID,
+    task_controller: TaskController = Depends(Factory().get_task_controller),
+    current_user: int = Depends(get_current_user),
+) -> TaskRetrieveResponse:
+
+    return await task_controller.get_user_task_by_uuid(
+        uuid=task_uuid, owner_id=current_user.id
+    )
+
+
+@router.put('/{task_uuid}/', status_code=status.HTTP_200_OK)
 async def update_task(
     task_uuid: UUID,
     request: TaskUpdateRequest,
@@ -70,7 +70,7 @@ async def update_task(
     )
 
 
-@router.delete('/delete/{task_uuid}/', status_code=status.HTTP_200_OK)
+@router.delete('/{task_uuid}/', status_code=status.HTTP_200_OK)
 async def delete_task(
     task_uuid: UUID,
     task_controller: TaskController = Depends(Factory().get_task_controller),

@@ -35,24 +35,28 @@ class TestTaskRouter:
 
     async def test_create_task(self) -> None:
         await create_user_and_login(self.client)
-        response = await self.client.post("/v1/tasks/create", json=self.data)
+        response = await self.client.post("/v1/tasks/", json=self.data)
         assert response.status_code == 201
 
     async def test_create_task_unauthorized(self) -> None:
-        response = await self.client.post("/v1/tasks/create", data={})
+        response = await self.client.post("/v1/tasks/", data={})
         assert response.status_code == 403
 
     async def test_update_task_unauthorized(self) -> None:
-        response = await self.client.put("v1/tasks/update/fasf/", data={})
+        response = await self.client.put("v1/tasks/fasf/", data={})
         assert response.status_code == 403
 
     async def test_update_task(self) -> None:
         await create_user_and_login(self.client)
-        task = await self.client.post("/v1/tasks/create", json=self.data)
+        task = await self.client.post("/v1/tasks/", json=self.data)
         task_uuid = task.json()['uuid']
         response = await self.client.put(
-            f'v1/tasks/update/{task_uuid}/',
-            json={'title': 'updated', 'description': 'updated', 'is_completed' : 'false'}
+            f'v1/tasks/{task_uuid}/',
+            json={
+                'title': 'updated',
+                'description': 'updated',
+                'is_completed': 'false'
+            }
         )
         assert response.status_code == 200
 
@@ -60,8 +64,12 @@ class TestTaskRouter:
         await create_user_and_login(self.client)
 
         response = await self.client.put(
-            f'v1/tasks/update/{uuid.uuid4()}/',
-            json={'title': 'updated', 'description': 'updated', 'is_completed' : 'false'}
+            f'v1/tasks/{uuid.uuid4()}/',
+            json={
+                'title': 'updated',
+                'description': 'updated',
+                'is_completed': 'false'
+            }
         )
         assert response.status_code == 404
 
@@ -69,7 +77,7 @@ class TestTaskRouter:
         await create_user_and_login(self.client)
 
         response = await self.client.put(
-            f'v1/tasks/update/{uuid.uuid4()}/'
+            f'v1/tasks/{uuid.uuid4()}/'
         )
         assert response.status_code == 422
 
@@ -77,32 +85,36 @@ class TestTaskRouter:
         await create_user_and_login(self.client)
 
         others_task = await self.client.post(
-            "/v1/tasks/create", json=self.data
+            "/v1/tasks/", json=self.data
         )
         others_task_uuid = others_task.json()['uuid']
 
         await create_user_and_login(self.client, username='other_user')
 
         response = await self.client.put(
-            f'v1/tasks/update/{others_task_uuid}/',
-            json={'title': 'updated', 'description': 'updated', 'is_completed': 'false'}
+            f'v1/tasks/{others_task_uuid}/',
+            json={
+                'title': 'updated',
+                'description': 'updated',
+                'is_completed': 'false'
+            }
         )
         assert response.status_code == 403
 
     async def test_delete_task_unauthorized(self) -> None:
 
         response = await self.client.delete(
-            f'v1/tasks/delete/{uuid.uuid4()}/',
+            f'v1/tasks/{uuid.uuid4()}/',
         )
         assert response.status_code == 403
 
     async def test_delete_task(self) -> None:
         await create_user_and_login(self.client)
-        task = await self.client.post("/v1/tasks/create", json=self.data)
+        task = await self.client.post("/v1/tasks/", json=self.data)
         task_uuid = task.json()['uuid']
 
         response = await self.client.delete(
-            f'v1/tasks/delete/{task_uuid}/',
+            f'v1/tasks/{task_uuid}/',
         )
         assert response.status_code == 200
 
@@ -110,7 +122,7 @@ class TestTaskRouter:
         await create_user_and_login(self.client)
 
         response = await self.client.delete(
-            f'v1/tasks/delete/{uuid.uuid4()}/',
+            f'v1/tasks/{uuid.uuid4()}/',
         )
         assert response.status_code == 404
 
@@ -118,42 +130,42 @@ class TestTaskRouter:
         await create_user_and_login(self.client)
 
         others_task = await self.client.post(
-            "/v1/tasks/create", json=self.data
+            "/v1/tasks/", json=self.data
         )
         others_task_uuid = others_task.json()['uuid']
 
         await create_user_and_login(self.client, username='other_user')
 
         response = await self.client.delete(
-            f'v1/tasks/delete/{others_task_uuid}/',
+            f'v1/tasks/{others_task_uuid}/',
         )
         assert response.status_code == 403
 
     async def test_task_detail_unauthorized(self):
-        response = await self.client.get(f'v1/tasks/detail/{uuid.uuid4()}/',)
+        response = await self.client.get(f'v1/tasks/{uuid.uuid4()}/',)
         assert response.status_code == 403
 
     async def test_task_detail(self):
         await create_user_and_login(self.client)
-        task = await self.client.post("/v1/tasks/create", json=self.data)
+        task = await self.client.post("/v1/tasks/", json=self.data)
         task_uuid = task.json()['uuid']
-        response = await self.client.get(f'v1/tasks/detail/{task_uuid}/')
+        response = await self.client.get(f'v1/tasks/{task_uuid}/')
         assert response.status_code == 200
 
     async def test_others_task_detail(self):
         await create_user_and_login(self.client)
         others_task = await self.client.post(
-            "/v1/tasks/create", json=self.data
+            "/v1/tasks/", json=self.data
         )
         others_task_uuid = others_task.json()['uuid']
 
         await create_user_and_login(self.client, username='other_user')
-        response = await self.client.get(f'v1/tasks/detail/{others_task_uuid}/')
+        response = await self.client.get(f'v1/tasks/{others_task_uuid}/')
         assert response.status_code == 403
 
     async def test_invalid_task_detail(self):
         await create_user_and_login(self.client)
-        response = await self.client.get(f'v1/tasks/detail/{uuid.uuid4()}/')
+        response = await self.client.get(f'v1/tasks/{uuid.uuid4()}/')
         assert response.status_code == 404
 
     async def test_task_list_unauthorized(self):
@@ -168,7 +180,7 @@ class TestTaskRouter:
 
     async def test_task_list(self):
         await create_user_and_login(self.client)
-        await self.client.post("/v1/tasks/create", json=self.data)
+        await self.client.post("/v1/tasks/", json=self.data)
         response = await self.client.get('v1/tasks/')
         assert response.status_code == 200
         assert response.json() != []
