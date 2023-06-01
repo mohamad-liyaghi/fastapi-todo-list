@@ -63,8 +63,7 @@ class BaseRepository:
         """
         query = await self._get_base_query(limit=limit, **kwargs)
         result = await self.session.execute(query)
-        models = result.scalars().all()
-        return models
+        return result.all()
 
     async def get_one(self, **kwargs) -> Optional[ModelType]:
         """

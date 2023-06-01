@@ -1,22 +1,23 @@
-from pydantic import BaseModel, constr
+from pydantic import BaseModel
 from uuid import UUID
 from datetime import datetime
 
 
 class BaseTaskResponse(BaseModel):
-    title: constr(min_length=5, max_length=60)
-    description: constr(max_length=255)
+    title: str
     created_at: datetime
     uuid: UUID
 
 
 class TaskCreateResponse(BaseTaskResponse):
+    description: str
 
     class Config:
         orm_mode = True
 
 
 class TaskUpdateResponse(BaseTaskResponse):
+    description: str
     is_completed: bool
 
     class Config:
@@ -24,8 +25,14 @@ class TaskUpdateResponse(BaseTaskResponse):
 
 
 class TaskRetrieveResponse(BaseTaskResponse):
+    description: str
     is_completed: bool
     owner_id: int
 
+    class Config:
+        orm_mode = True
+
+
+class TaskListResponse(BaseTaskResponse):
     class Config:
         orm_mode = True

@@ -155,3 +155,20 @@ class TestTaskRouter:
         await create_user_and_login(self.client)
         response = await self.client.get(f'v1/tasks/detail/{uuid.uuid4()}/')
         assert response.status_code == 404
+
+    async def test_task_list_unauthorized(self):
+        response = await self.client.get('v1/tasks/')
+        assert response.status_code == 403
+
+    async def test_empty_task_list(self):
+        await create_user_and_login(self.client)
+        response = await self.client.get('v1/tasks/')
+        assert response.status_code == 200
+        assert response.json() == []
+
+    async def test_task_list(self):
+        await create_user_and_login(self.client)
+        await self.client.post("/v1/tasks/create", json=self.data)
+        response = await self.client.get('v1/tasks/')
+        assert response.status_code == 200
+        assert response.json() != []

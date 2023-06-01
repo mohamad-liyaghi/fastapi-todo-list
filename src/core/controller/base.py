@@ -1,4 +1,3 @@
-from fastapi import HTTPException, status
 from typing import Generic, Type, TypeVar, List
 from uuid import UUID
 
@@ -36,21 +35,22 @@ class BaseController(Generic[ModelType]):
         obj = await self.repository.get_one(uuid=uuid)
         if not obj:
             return
-        return obj    
-    
-    async def get_all(self, limit: int = 20) -> List[ModelType]:
+        return obj
+
+    async def get_all(self, limit: int = 20, **kwargs) -> List[ModelType]:
         """
         Returns a list of all model instances.
 
         :return: A list of all model instances.
         """
-        return await self.repository.get_all(limit=limit)
+        return await self.repository.get_all(limit=limit, **kwargs)
 
     async def create(self, **attributes) -> ModelType:
         """
         Creates a new model instance with the given attributes.
 
-        :param attributes: A dictionary containing the attributes of the new model instance.
+        :param attributes: A dictionary containing the attributes of
+        the new model instance.
         :return: The created model instance.
         """
         return await self.repository.create(**attributes)

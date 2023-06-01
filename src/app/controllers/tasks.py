@@ -26,6 +26,9 @@ class TaskController(BaseController):
             )
         return task
 
+    async def get_user_task_list(self, owner_id: int, limit: int = 20):
+        return await self.get_all(limit=limit, owner_id=owner_id)
+
     async def update_task(self, uuid: UUID, owner_id: int, update_data):
         task = await self.get_user_task_by_uuid(uuid=uuid, owner_id=owner_id)
 
@@ -36,6 +39,4 @@ class TaskController(BaseController):
 
     async def delete_task(self, uuid: UUID, owner_id: int):
         task = await self.get_user_task_by_uuid(uuid=uuid, owner_id=owner_id)
-        print(task.id)
         return await self.delete(id_=task.id)
-    

@@ -9,13 +9,26 @@ from app.schemas import (
     TaskUpdateRequest,
     TaskUpdateResponse,
     TaskRetrieveResponse,
+    TaskListResponse,
 )
 from core.dependencies import get_current_user
 from uuid import UUID
+from typing import List
+
 
 router = APIRouter(
     dependencies=[Depends(AuthenticationRequired)],
 )
+
+
+@router.get('/', status_code=status.HTTP_200_OK)
+async def retrieve_all_tasks(
+    task_controller: TaskController = Depends(Factory().get_task_controller),
+    current_user: int = Depends(get_current_user),
+) -> List[TaskListResponse]:
+
+    tasks = await task_controller.get_user_task_list(owner_id=current_user.id)
+    return tasks
 
 
 @router.get('/detail/{task_uuid}/', status_code=status.HTTP_200_OK)
