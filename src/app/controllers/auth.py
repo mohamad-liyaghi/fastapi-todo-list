@@ -38,4 +38,4 @@ class AuthController(BaseController):
                 detail='Password is not correct.',
                 status_code=status.HTTP_403_FORBIDDEN
             )
-        return await JWTHandler.create_access_token({'username': username})
+        return await JWTHandler.create_access_token({'id': user.id})

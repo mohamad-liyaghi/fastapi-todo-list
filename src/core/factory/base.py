@@ -1,8 +1,8 @@
 from fastapi import Depends
 
-from app.controllers import AuthController, UserController
-from app.repositories import UserRepository
-from app.models import User
+from app.controllers import AuthController, UserController, TaskController
+from app.repositories import UserRepository, TaskRepository
+from app.models import User, Task
 from core.database import get_session
 
 
@@ -14,13 +14,19 @@ class Factory:
 
     # Repositories
     user_repository = UserRepository
+    task_repository = TaskRepository
 
-    def get_user_controller(self, db_session=Depends(get_session)):
+    def get_user_controller(self, session=Depends(get_session)):
         return UserController(
-            user_repository=self.user_repository(db_session=db_session)
+            user_repository=self.user_repository(session=session, model=User)
         )
 
     def get_auth_controller(self, session=Depends(get_session)):
         return AuthController(
             user_repository=self.user_repository(session=session, model=User),
+        )
+
+    def get_task_controller(self, session=Depends(get_session)):
+        return TaskController(
+            task_repository=self.task_repository(session=session, model=Task),
         )
