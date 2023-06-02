@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  database:
+    image: postgres:11 
+    container_name: fastapi-todo-list-postgres
+    environment:
+      - POSTGRES_USER=postgres        
+      - POSTGRES_PASSWORD=1234EErr  
+      - POSTGRES_DB=fastapi_todo_list  
+    ports:
+      - "5432:5432" 
+    volumes:
+      - db-data:/var/lib/postgresql/data
+  
+  test-database:
+    image: postgres:11
+    container_name: fastapi-todo-list-test-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: '1234EErr'
+      POSTGRES_DB: test_fastapi_todo_list
+
+    ports:
+      - "5431:5432"
+
+  backend:
+    build: .
+    container_name: fastapi-todo-list-backend
+    command: sh -c 'sleep 1 && alembic upgrade head && python main.py'
+    ports:
+      - 8000:8000
+    environment:
+      - ENVIRONMENT=production
+      - DEBUG=0
+      - SHOW_SQL_ALCHEMY_QUERIES=0
+      - DATABASE_ECHO=0
+    depends_on:
+      - database
+      - test-database
+    volumes:
+      - .:/backend
+
+volumes:
+  db-data:
