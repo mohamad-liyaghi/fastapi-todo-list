@@ -1,25 +1,7 @@
 import pytest
 import uuid
 from httpx import AsyncClient
-
-
-async def create_user_and_login(
-        client: AsyncClient,
-        username: str = 'default_username',
-        password: str = 'default_pass#',
-) -> None:
-
-    data = {'username': username, 'password': password}
-
-    await client.post("v1/users/register", json=data)
-
-    response = await client.post("v1/users/login", data=data)
-    assert response.status_code == 200
-    access_token = response.json()["access_token"]
-
-    client.headers.update({"Authorization": f"Bearer {access_token}"})
-
-    return None
+from tests.api.v1.utils import create_user_and_login, create_task
 
 
 @pytest.mark.asyncio
@@ -35,20 +17,20 @@ class TestTaskRouter:
 
     async def test_create_task(self) -> None:
         await create_user_and_login(self.client)
-        response = await self.client.post("/v1/tasks/", json=self.data)
+        response = await create_task(self.client, self.data)
         assert response.status_code == 201
 
     async def test_create_task_unauthorized(self) -> None:
-        response = await self.client.post("/v1/tasks/", data={})
+        response = await create_task(self.client, self.data)
         assert response.status_code == 403
 
     async def test_update_task_unauthorized(self) -> None:
-        response = await self.client.put("v1/tasks/fasf/", data={})
+        response = await create_task(self.client, self.data)
         assert response.status_code == 403
 
     async def test_update_task(self) -> None:
         await create_user_and_login(self.client)
-        task = await self.client.post("/v1/tasks/", json=self.data)
+        task = await create_task(self.client, self.data)
         task_uuid = task.json()['uuid']
         response = await self.client.put(
             f'v1/tasks/{task_uuid}/',
@@ -84,9 +66,7 @@ class TestTaskRouter:
     async def test_update_others_task(self) -> None:
         await create_user_and_login(self.client)
 
-        others_task = await self.client.post(
-            "/v1/tasks/", json=self.data
-        )
+        others_task = await create_task(self.client, self.data)
         others_task_uuid = others_task.json()['uuid']
 
         await create_user_and_login(self.client, username='other_user')
@@ -110,7 +90,7 @@ class TestTaskRouter:
 
     async def test_delete_task(self) -> None:
         await create_user_and_login(self.client)
-        task = await self.client.post("/v1/tasks/", json=self.data)
+        task = await create_task(self.client, self.data)
         task_uuid = task.json()['uuid']
 
         response = await self.client.delete(
@@ -129,9 +109,7 @@ class TestTaskRouter:
     async def test_delete_others_task(self) -> None:
         await create_user_and_login(self.client)
 
-        others_task = await self.client.post(
-            "/v1/tasks/", json=self.data
-        )
+        others_task = await create_task(self.client, self.data)
         others_task_uuid = others_task.json()['uuid']
 
         await create_user_and_login(self.client, username='other_user')
@@ -147,16 +125,14 @@ class TestTaskRouter:
 
     async def test_task_detail(self):
         await create_user_and_login(self.client)
-        task = await self.client.post("/v1/tasks/", json=self.data)
+        task = await create_task(self.client, self.data)
         task_uuid = task.json()['uuid']
         response = await self.client.get(f'v1/tasks/{task_uuid}/')
         assert response.status_code == 200
 
     async def test_others_task_detail(self):
         await create_user_and_login(self.client)
-        others_task = await self.client.post(
-            "/v1/tasks/", json=self.data
-        )
+        others_task = await create_task(self.client, self.data)
         others_task_uuid = others_task.json()['uuid']
 
         await create_user_and_login(self.client, username='other_user')
@@ -180,7 +156,7 @@ class TestTaskRouter:
 
     async def test_task_list(self):
         await create_user_and_login(self.client)
-        await self.client.post("/v1/tasks/", json=self.data)
+        await create_task(self.client, self.data)
         response = await self.client.get('v1/tasks/')
         assert response.status_code == 200
         assert response.json() != []
