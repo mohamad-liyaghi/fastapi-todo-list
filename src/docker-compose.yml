@@ -27,7 +27,7 @@ services:
   backend:
     build: .
     container_name: fastapi-todo-list-backend
-    command: sh -c 'sleep 1 && alembic upgrade head && python main.py'
+    command: sh -c 'sleep 1 && alembic upgrade head && fastapi dev main.py'
     expose:
       - 8000
     environment:
